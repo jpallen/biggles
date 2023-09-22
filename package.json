@@ -17,7 +17,20 @@
         "command": "biggles.text",
         "title": "Biggles: Type instructions"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Biggles",
+      "properties": {
+        "biggles.openAI.apiKey": {
+          "type": "string",
+          "description": "OpenAI API key"
+        },
+        "biggles.openAI.organizationId": {
+          "type": "string",
+          "description": "OpenAI Organization ID (optional)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

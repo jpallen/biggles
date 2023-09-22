@@ -1,13 +1,10 @@
 import * as vscode from 'vscode';
 import OpenAI from "openai";
 
-
-
 export async function activate(context: vscode.ExtensionContext) {
-
-	const openai = new OpenAI({ apiKey: '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' });
-
-	let disposable = vscode.commands.registerCommand('biggles.text',async () => {
+	let disposable = vscode.commands.registerCommand('biggles.text', async () => {
+		const openai = await getOpenAIClient();
+		if (!openai) { return; }
 
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
@@ -28,6 +25,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+const getOpenAIClient = async () => {
+	const config = vscode.workspace.getConfiguration('biggles');
+	const apiKey = config.get('openAI.apiKey') as string | undefined;
+	const organization = config.get('openAI.organization') as string | undefined;
+	console.log('initialised', {apiKey, organization});
+
+	if (typeof apiKey !== 'string' || apiKey.length === 0) {
+		const result = await vscode.window.showErrorMessage('No OpenAI API key found. Please add one to your settings.', 'Open Settings');
+		if (result === 'Open Settings') {
+			await vscode.commands.executeCommand('workbench.action.openSettings', 'biggles');
+		}
+		return;
+	}
+
+	return new OpenAI({ apiKey, organization });
+};
 
 const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selectedRange: vscode.Range) => {
 	const instruction = await vscode.window.showInputBox({
