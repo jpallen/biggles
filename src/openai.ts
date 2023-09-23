@@ -41,7 +41,7 @@ export const adjustCode = async (openai: OpenAI, instruction: string, code: stri
 				content: `Instruction: ${instruction}\nCode:\n${code}`
 			}
 		],
-		model: "gpt-3.5-turbo",
+		model: "gpt-4",
 	});
 
 	const content = completion.choices[0]?.message.content;
@@ -83,7 +83,7 @@ export const transcribeAudio = () => {
 	const headers: Record<string, string> = {
 		'Authorization': `Bearer ${apiKey}`,
 		'Content-Type': `multipart/form-data; boundary=${boundary}`,
-	}
+	};
 
 	if (organization) {
 		headers['OpenAI-Organization'] = organization;
@@ -105,10 +105,18 @@ export const transcribeAudio = () => {
 			});
 	
 			res.on('end', () => {
-				// TODO: Error handling here
-				resolve(JSON.parse(body).text as string);
+				try {
+					const parsedBody = JSON.parse(body);
+					if (parsedBody.text) {
+						resolve(parsedBody.text as string);
+					} else {
+						reject(new Error('Text field does not exist in the response.'));
+					}
+				} catch (error) {
+					reject(error);
+				}
 			});
-
+	
 			res.on('error', reject);
 		});
 	
