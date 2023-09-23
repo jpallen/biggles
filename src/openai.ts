@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import OpenAI from "openai";
 import * as vscode from 'vscode';
+import * as rec from './record';
+import FormData from 'form-data';
+import * as https from 'https';
 
 export const getOpenAIClient = async () => {
-	const config = vscode.workspace.getConfiguration('biggles');
-	const apiKey = config.get('openAI.apiKey') as string | undefined;
-	const organization = config.get('openAI.organization') as string | undefined;
-	console.log('initialised', {apiKey, organization});
-
+  const {apiKey, organization} = getConfig();
 	if (typeof apiKey !== 'string' || apiKey.length === 0) {
 		const result = await vscode.window.showErrorMessage('No OpenAI API key found. Please add one to your settings.', 'Open Settings');
 		if (result === 'Open Settings') {
@@ -16,6 +16,14 @@ export const getOpenAIClient = async () => {
 	}
 
 	return new OpenAI({ apiKey, organization });
+};
+
+const getConfig = () => { 
+	const config = vscode.workspace.getConfiguration('biggles');
+	const apiKey = config.get('openAI.apiKey') as string | undefined;
+	const organization = config.get('openAI.organization') as string | undefined;
+	console.log('initialised', {apiKey, organization});
+  return {apiKey, organization};
 };
 
 export const adjustCode = async (openai: OpenAI, instruction: string, code: string) => {
@@ -60,4 +68,52 @@ export const createCode = async (openai: OpenAI, instruction: string) => {
 
 	const content = completion.choices[0]?.message.content;
 	return content;
+};
+
+export const transcribeAudio = () => {
+  const {apiKey, organization} = getConfig();
+
+  const stream = rec.start({ recordProgram: 'rec' });
+
+  const formData = new FormData();
+  formData.append('model', 'whisper-1');
+  const boundary = formData.getBoundary();
+  formData.append('file', stream, { contentType: 'audio/wav', filename: 'audio.wav' });
+
+	const headers: Record<string, string> = {
+		'Authorization': `Bearer ${apiKey}`,
+		'Content-Type': `multipart/form-data; boundary=${boundary}`,
+	}
+
+	if (organization) {
+		headers['OpenAI-Organization'] = organization;
+	}
+
+  const options = {
+    hostname: 'api.openai.com',
+    path: '/v1/audio/transcriptions',
+    method: 'POST',
+    headers
+  };
+
+	return new Promise<string>((resolve, reject) => {
+		const req = https.request(options, (res) => {
+			let body = '';
+	
+			res.on('data', (chunk) => {
+				body += chunk;
+			});
+	
+			res.on('end', () => {
+				// TODO: Error handling here
+				resolve(JSON.parse(body).text as string);
+			});
+
+			res.on('error', reject);
+		});
+	
+		formData.pipe(req);
+	
+		req.on('error', reject);
+	});
 };

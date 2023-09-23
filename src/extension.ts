@@ -1,40 +1,54 @@
 import * as vscode from 'vscode';
 import OpenAI from "openai";
-import { adjustCode, createCode, getOpenAIClient } from './openai';
+import { adjustCode, createCode, getOpenAIClient, transcribeAudio } from './openai';
 
 export async function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('biggles.text', async () => {
-		const openai = await getOpenAIClient();
-		if (!openai) { return; }
+	const text = vscode.commands.registerCommand('biggles.text', () => biggles({voice: false}));
+	context.subscriptions.push(text);
 
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) {
-			return;
-		}
-
-		const selectedRange = getSelectedRange(editor);
-
-		if (selectedRange) {
-			await promptToEditCode(openai, editor, selectedRange);
-		} else {
-			await promptToInsertCode(openai, editor);
-		}
-	});
-
-	context.subscriptions.push(disposable);
+	const voice = vscode.commands.registerCommand('biggles.voice', () => biggles({voice: true}));
+	context.subscriptions.push(voice);
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selectedRange: vscode.Range) => {
-	const instruction = await vscode.window.showInputBox({
-		placeHolder: "Modifications to selected code...",
-		prompt: "Describe the modifications to the selected code",
-	});
-	if (!instruction) {
-		console.debug('No instruction given, aborting');
+type BigglesOptions = {
+	voice: boolean
+};
+
+const biggles = async (options: BigglesOptions) => {
+	const openai = await getOpenAIClient();
+	if (!openai) { return; }
+
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {
 		return;
+	}
+
+	const selectedRange = getSelectedRange(editor);
+
+	if (selectedRange) {
+		await promptToEditCode(openai, editor, selectedRange, options);
+	} else {
+		await promptToInsertCode(openai, editor, options);
+	}
+};
+
+const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selectedRange: vscode.Range, { voice }: BigglesOptions) => {
+	let instruction: string;
+	if (voice) {
+		instruction = await transcribeAudio();
+	} else {
+		const input = await vscode.window.showInputBox({
+			placeHolder: "Modifications to selected code...",
+			prompt: "Describe the modifications to the selected code",
+		});
+		if (!input) {
+			console.debug('No instruction given, aborting');
+			return;
+		}
+		instruction = input;
 	}
 	console.debug(`Instruction: ${instruction}`);
 
@@ -62,20 +76,28 @@ const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selec
 	});
 };
 
-const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor) => {
-	const instruction = await vscode.window.showInputBox({
-		placeHolder: "Description of code to insert...",
-		prompt: "Describe the code you would like to insert",
-	});
-	if (!instruction) {
-		console.log('No instruction given, aborting');
-		return;
+const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { voice }: BigglesOptions) => {
+	let instruction: string;
+	if (voice) {
+		instruction = await transcribeAudio();
+	} else {
+		const input = await vscode.window.showInputBox({
+			placeHolder: "Description of code to insert...",
+			prompt: "Describe the code you would like to insert",
+		});
+		if (!input) {
+			console.debug('No instruction given, aborting');
+			return;
+		}
+		instruction = input;
 	}
-	console.debug(`Code: ${instruction}`);
+	console.debug(`Instruction: ${instruction}`);
 
 	const status = vscode.window.setStatusBarMessage("Thinking...");
 	const code = await createCode(openai, instruction);
 	status.dispose();
+
+	console.debug(`Code: ${code}`);
 
 	editor.edit(editBuilder => {
 		editBuilder.insert(editor.selection.active, instruction);

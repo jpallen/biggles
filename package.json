@@ -15,7 +15,11 @@
     "commands": [
       {
         "command": "biggles.text",
-        "title": "Biggles: Type instructions"
+        "title": "Biggles: Keyboard Input"
+      },
+      {
+        "command": "biggles.voice",
+        "title": "Biggles: Voice Input"
       }
     ],
     "configuration": {
@@ -43,6 +47,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/request": "^2.48.8",
     "@types/vscode": "^1.82.0",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
@@ -53,6 +58,9 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "openai": "^4.9.0"
+    "form-data": "^4.0.0",
+    "node-mic-record": "^0.0.1",
+    "openai": "^4.9.0",
+    "reequest": "^0.0.1-security"
   }
 }
