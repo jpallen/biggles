@@ -33,16 +33,16 @@ const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selec
 		prompt: "Describe the modifications to the selected code",
 	});
 	if (!instruction) {
-		console.log('No instruction given, aborting');
+		console.debug('No instruction given, aborting');
 		return;
 	}
-	console.log(`Instruction: ${instruction}`);
+	console.debug(`Instruction: ${instruction}`);
 
 	const leadingWhitespace = getIndentationOfCurrentLine(editor);
 	const selectedText = editor.document.getText(selectedRange);
 	const code = removeWhitespace(selectedText, leadingWhitespace);
 
-	console.log(`Code: ${code}`);
+	console.debug(`Code: ${code}`);
 
 	const status = vscode.window.setStatusBarMessage("Thinking...");
 	const adjustedCode = await adjustCode(openai, instruction, code);
@@ -55,7 +55,7 @@ const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selec
 
 	const indentInitialLine = selectedText.startsWith(leadingWhitespace);
 	const indentedCode = applyWhitespace(adjustedCode, leadingWhitespace, indentInitialLine);
-	console.log(indentedCode);
+	console.debug(indentedCode);
 
 	editor.edit(editBuilder => {
 		editBuilder.replace(selectedRange, indentedCode);
@@ -71,7 +71,7 @@ const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor) => 
 		console.log('No instruction given, aborting');
 		return;
 	}
-	console.log(`Code: ${instruction}`);
+	console.debug(`Code: ${instruction}`);
 
 	const status = vscode.window.setStatusBarMessage("Thinking...");
 	const code = await createCode(openai, instruction);
@@ -96,7 +96,7 @@ const getIndentationOfCurrentLine = (editor: vscode.TextEditor) => {
 	const whitespaceLength = currentLineText.length - currentLineText.trimStart().length;
 	const leadingWhitespace = currentLineText.slice(0, whitespaceLength);
 
-	console.log(`Leading whitespace: "${leadingWhitespace}"`);
+	console.debug(`Leading whitespace: "${leadingWhitespace}"`);
 		
 	return leadingWhitespace;
 };

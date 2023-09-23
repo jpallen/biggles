@@ -20,6 +20,7 @@ export const getOpenAIClient = async () => {
 
 export const adjustCode = async (openai: OpenAI, instruction: string, code: string) => {
   const language = vscode.window.activeTextEditor?.document.languageId;
+	console.debug('Detected language:', language);
 
 	const completion = await openai.chat.completions.create({
 		messages: [
@@ -41,6 +42,7 @@ export const adjustCode = async (openai: OpenAI, instruction: string, code: stri
 
 export const createCode = async (openai: OpenAI, instruction: string) => {
   const language = vscode.window.activeTextEditor?.document.languageId;
+	console.debug('Detected language:', language);
 
 	const completion = await openai.chat.completions.create({
 		messages: [
