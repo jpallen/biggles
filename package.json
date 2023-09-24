@@ -1,7 +1,9 @@
 {
   "name": "biggles",
   "displayName": "Biggles",
-  "description": "",
+  "description": "Biggles is the coding assisstant you can talk to",
+  "repository": "https://github.com/jpallen/biggles",
+  "publisher": "biggles",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.82.0"
