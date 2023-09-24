@@ -111,32 +111,52 @@ export const captureAudio = async () => {
     headers
   };
 
-	return new Promise<string>((resolve, reject) => {
-		const req = https.request(options, (res) => {
-			let body = '';
-	
-			res.on('data', (chunk) => {
-				body += chunk;
+	// TODO: Handle OpenAI error and cancel recording
+	return new Promise<string>((resolveRequest, reject) => {
+		vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: "Talk to me...",
+			cancellable: true
+		}, (progress, token) => {
+			let cancelled = false;
+			token.onCancellationRequested(() => {
+				rec.stop();
+				cancelled = true;
+				console.log("User cancelled the recording");
 			});
-	
-			res.on('end', () => {
-				try {
-					const parsedBody = JSON.parse(body);
-					if (parsedBody.text) {
-						resolve(parsedBody.text as string);
-					} else {
-						reject(new Error('Text field does not exist in the response.'));
-					}
-				} catch (error) {
-					reject(error);
-				}
+
+			return new Promise<void>(resolveProgress => {
+				const req = https.request(options, (res) => {
+					let body = '';
+			
+					res.on('data', (chunk) => {
+						body += chunk;
+					});
+			
+					res.on('end', () => {
+						resolveProgress();
+						if (cancelled) {
+							reject(new Error('user cancelled'));
+						}
+						try {
+							const parsedBody = JSON.parse(body);
+							if (parsedBody.text) {
+								resolveRequest(parsedBody.text as string);
+							} else {
+								reject(new Error('Text field does not exist in the response.'));
+							}
+						} catch (error) {
+							reject(error);
+						}
+					});
+			
+					res.on('error', reject);
+				});
+		
+				formData.pipe(req);
+			
+				req.on('error', reject);
 			});
-	
-			res.on('error', reject);
 		});
-	
-		formData.pipe(req);
-	
-		req.on('error', reject);
 	});
 };
