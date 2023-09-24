@@ -113,9 +113,6 @@ export function start(userOptions: Partial<RecordOptions> = {}): Promise<Readabl
     // eslint-disable-next-line @typescript-eslint/naming-convention
     cmdOptions.env = Object.assign({}, process.env, { AUDIODEV: options.device });
   }
-  console.log(cmd);
-  console.log(cmdArgs);
-  console.log(cmdOptions);
   cp = spawn(cmd, cmdArgs, cmdOptions);
   const rec = cp.stdout!;
 
