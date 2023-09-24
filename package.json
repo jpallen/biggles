@@ -3,6 +3,9 @@
   "displayName": "Biggles",
   "description": "Biggles is the coding assisstant you can talk to",
   "repository": "https://github.com/jpallen/biggles",
+  "bugs": {
+    "url": "https://github.com/jpallen/biggles/issues"
+  },
   "publisher": "biggles",
   "icon": "assets/biggles-logo.png",
   "version": "0.0.2",

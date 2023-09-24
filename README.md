@@ -1,13 +1,11 @@
-<div style="text-align: center">
-  <img src="assets/biggles-logo-128.png" />
-  <h1>Biggles</h1>
-  <h2>The code assistant you can talk to</h2>
-  <a href="https://marketplace.visualstudio.com/items?itemName=Biggles.biggles">Install in VSCode</a>
-</div>
+<h1><img src="assets/biggles-logo-128.png" />Biggles</h1>
+<h2>The code assistant you can talk to</h2>
 
-Biggles is a coding assistant for VSCode that you can talk to tell it how to change your code, or what code to change.
+[Install in VSCode](https://marketplace.visualstudio.com/items?itemName=Biggles.biggles)
 
-Use CMD/CTRL+M to activate Biggles then just say what code you want to add or changes you want to make.
+Biggles is a coding assistant for VSCode that you can talk to tell it how to change your code.
+
+Use CMD/CTRL+M to activate Biggles then just say what code you want to add or the changes you want to make.
 
 Biggles has two modes: **Insertion** and **Modification**. If you don't have any code selected, Biggles with insert code at the current cursor position. If you have code selected, Biggles will modify the selected code.
 
