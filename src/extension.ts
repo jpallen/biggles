@@ -28,7 +28,9 @@ const biggles = async (options: BigglesOptions) => {
 
 	const selectedRange = getSelectedRange(editor);
 
-	if (selectedRange) {
+	console.log('Selected range:', selectedRange.isEmpty);
+
+	if (selectedRange && !selectedRange.isEmpty) {
 		await promptToEditCode(openai, editor, selectedRange, options);
 	} else {
 		await promptToInsertCode(openai, editor, options);
@@ -72,15 +74,29 @@ const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { v
 		console.debug('No instruction given, aborting');
 		return;
 	}
+	
+	let doc = editor.document;
+	let pos = editor.selection.active;
+	let textToCursor = doc.getText(new vscode.Range(new vscode.Position(0, 0), pos));
+	let textAfterCursor = doc.getText(new vscode.Range(pos, new vscode.Position(doc.lineCount + 1, 0)));
 
 	const status = vscode.window.setStatusBarMessage("Thinking...");
-	const code = await createCode(openai, instruction);
+	const code = await createCode(openai, instruction, textToCursor, textAfterCursor);
 	status.dispose();
+
+	if (!code) {
+		vscode.window.showErrorMessage("An error occurred. Please try again.");
+		return;
+	}
 
 	console.debug(`Code: ${code}`);
 
+	const leadingWhitespace = getIndentationOfCurrentLine(editor);
+	const indentedCode = applyWhitespace(code, leadingWhitespace, false);
+	console.debug(indentedCode);
+
 	editor.edit(editBuilder => {
-		editBuilder.insert(editor.selection.active, instruction);
+		editBuilder.insert(editor.selection.active, indentedCode);
 	});
 };
 

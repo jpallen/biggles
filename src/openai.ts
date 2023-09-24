@@ -29,7 +29,7 @@ const getConfig = () => {
 
 export const adjustCode = async (openai: OpenAI, instruction: string, code: string) => {
   const language = vscode.window.activeTextEditor?.document.languageId;
-	console.debug('Detected language:', language);
+	console.debug('Detected language (adjustCode):', language);
 
 	const completion = await openai.chat.completions.create({
 		messages: [
@@ -49,22 +49,23 @@ export const adjustCode = async (openai: OpenAI, instruction: string, code: stri
 	return content;
 };
 
-export const createCode = async (openai: OpenAI, instruction: string) => {
+export const createCode = async (openai: OpenAI, instruction: string, textBeforeCursor: string, textAfterCursor: string) => {
   const language = vscode.window.activeTextEditor?.document.languageId;
-	console.debug('Detected language:', language);
+	console.debug('Detected language (createCode):', language);
 
+	const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+		{
+			role: "system",
+			content: `You are a coding assistent for the ${language} programming language. The user prompt will the code before the cursor in <before> tags, the code after the cursor in <after> tags and a description of the new code to insert in <instruction> tags. The output will be code to insert between the before and after code which does what the user description says with no instroduction or explanation. `
+		},
+		{
+			role: "user",
+			content: `<instruction>${instruction}</instruction>\n<before>${textBeforeCursor}</before>\n<after>${textAfterCursor}</after>`
+		}
+	];
 	const completion = await openai.chat.completions.create({
-		messages: [
-			{
-				role: "system",
-				content: `You are a coding assistent for the ${language} programming language. The user prompt will be an instruction. The output will be some code which does what the instruction says.`
-			},
-			{
-				role: "user",
-				content: instruction
-			}
-		],
-		model: "gpt-3.5-turbo",
+		messages: messages,
+		model: "gpt-4",
 	});
 
 	const content = completion.choices[0]?.message.content;
