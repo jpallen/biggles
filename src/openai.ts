@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as rec from './record';
 import FormData from 'form-data';
 import * as https from 'https';
+import { Readable } from 'node:stream';
 
 export const getOpenAIClient = async () => {
   const {apiKey, organization} = getConfig();
@@ -22,7 +23,7 @@ const getConfig = () => {
 	const config = vscode.workspace.getConfiguration('biggles');
 	const apiKey = config.get('openAI.apiKey') as string | undefined;
 	const organization = config.get('openAI.organization') as string | undefined;
-	console.log('initialised', {apiKey, organization});
+	console.debug('initialised', {apiKey, organization});
   return {apiKey, organization};
 };
 
@@ -70,10 +71,24 @@ export const createCode = async (openai: OpenAI, instruction: string) => {
 	return content;
 };
 
-export const transcribeAudio = () => {
+export const transcribeAudio = async () => {
   const {apiKey, organization} = getConfig();
 
-  const stream = rec.start({ recordProgram: 'rec' });
+  let stream: Readable;
+  try {
+    stream = await rec.start({ recordProgram: 'rec' });
+  } catch (error) {
+    if ((error as any).code === 'ENOENT') {
+      const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', 'Install SoX');
+      if (result === 'Install SoX') {
+        // TODO: Links to other than just Mac
+        vscode.env.openExternal(vscode.Uri.parse('https://formulae.brew.sh/formula/sox'));
+      }
+      return;
+    } else {
+      throw error;
+    }
+  }
 
   const formData = new FormData();
   formData.append('model', 'whisper-1');

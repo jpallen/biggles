@@ -28,7 +28,7 @@ import { Readable } from 'node:stream';
 
 let cp: ChildProcess | null; // Recording process
 
-export function start(userOptions: Partial<RecordOptions> = {}): Readable {
+export function start(userOptions: Partial<RecordOptions> = {}): Promise<Readable> {
   cp = null; // Empty out possibly dead recording process
 
   const defaults: RecordOptions = {
@@ -128,7 +128,10 @@ export function start(userOptions: Partial<RecordOptions> = {}): Readable {
     });
   }
 
-  return rec;
+  return new Promise((resolve, reject) => {
+    cp!.on('spawn', () => resolve(rec));
+    cp!.on('error', reject);
+  });
 }
 
 export function stop(): ChildProcess | false {
