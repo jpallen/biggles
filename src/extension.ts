@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import OpenAI from "openai";
-import { adjustCode, createCode, getOpenAIClient, transcribeAudio } from './openai';
+import { adjustCode, createCode, getOpenAIClient, captureAudio } from './openai';
 
 export async function activate(context: vscode.ExtensionContext) {
 	const text = vscode.commands.registerCommand('biggles.text', () => biggles({voice: false}));
@@ -36,21 +36,11 @@ const biggles = async (options: BigglesOptions) => {
 };
 
 const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selectedRange: vscode.Range, { voice }: BigglesOptions) => {
-	let input: string | undefined;
-	if (voice) {
-		input = await transcribeAudio();
-	} else {
-		input = await vscode.window.showInputBox({
-			placeHolder: "Modifications to selected code...",
-			prompt: "Describe the modifications to the selected code",
-		});
-	}
-	if (!input) {
+	const instruction = await getInstruction(voice, "Modifications to selected code...", "Describe the modifications to the selected code");
+	if (!instruction) {
 		console.debug('No instruction given, aborting');
 		return;
 	}
-	const instruction = input;
-	console.debug(`Instruction: ${instruction}`);
 
 	const leadingWhitespace = getIndentationOfCurrentLine(editor);
 	const selectedText = editor.document.getText(selectedRange);
@@ -77,21 +67,11 @@ const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selec
 };
 
 const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { voice }: BigglesOptions) => {
-	let input: string | undefined;
-	if (voice) {
-		input = await transcribeAudio();
-	} else {
-		input = await vscode.window.showInputBox({
-			placeHolder: "Description of code to insert...",
-			prompt: "Describe the code you would like to insert",
-		});
-	}
-	if (!input) {
+	const instruction = await getInstruction(voice, "Description of code to insert...", "Describe the code you would like to insert");
+	if (!instruction) {
 		console.debug('No instruction given, aborting');
 		return;
 	}
-	const instruction = input;
-	console.debug(`Instruction: ${instruction}`);
 
 	const status = vscode.window.setStatusBarMessage("Thinking...");
 	const code = await createCode(openai, instruction);
@@ -102,6 +82,20 @@ const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { v
 	editor.edit(editBuilder => {
 		editBuilder.insert(editor.selection.active, instruction);
 	});
+};
+
+const getInstruction = async (voice: boolean, prompt: string, placeHolder: string) => {
+	let instruction: string | undefined;
+	if (voice) {
+		instruction = await captureAudio();
+	} else {
+		instruction = await vscode.window.showInputBox({
+			placeHolder: "Description of code to insert...",
+			prompt: "Describe the code you would like to insert",
+		});
+	}
+	console.debug(`Instruction: ${instruction}`);
+	return instruction;
 };
 
 const getSelectedRange = (editor: vscode.TextEditor) => {

@@ -71,7 +71,7 @@ export const createCode = async (openai: OpenAI, instruction: string) => {
 	return content;
 };
 
-export const transcribeAudio = async () => {
+export const captureAudio = async () => {
   const {apiKey, organization} = getConfig();
 
   let stream: Readable;
@@ -79,7 +79,7 @@ export const transcribeAudio = async () => {
     stream = await rec.start({ recordProgram: 'rec' });
   } catch (error) {
     if ((error as any).code === 'ENOENT') {
-      const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', 'Install SoX');
+      const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', { modal: true }, 'Install SoX');
       if (result === 'Install SoX') {
         // TODO: Links to other than just Mac
         vscode.env.openExternal(vscode.Uri.parse('https://formulae.brew.sh/formula/sox'));
