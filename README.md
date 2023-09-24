@@ -35,7 +35,11 @@ $ brew install sox
 $ sudo apt-get install sox libsox-fmt-all
 ```
 
-#### Installing on Window
+#### Installing on Windows
 
-[Download from SourceForge](https://sourceforge.net/projects/sox/)
+- [Download and Install Sox](https://sourceforge.net/projects/sox/)
+- Find the Sox Executable, probably here: C:\Program Files (x86)\sox-*
+- Add this path to your environment on windows:
+    - "Edit the system environment variables" -> "Environment Variables" -> "Path" -> Edit -> New -> Paste the path
+- Restart VSCode
 
