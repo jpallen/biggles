@@ -50,9 +50,7 @@ const promptToEditCode = async (openai: OpenAI, editor: vscode.TextEditor, selec
 
 	console.debug(`Code: ${code}`);
 
-	const status = vscode.window.setStatusBarMessage("Thinking...");
 	const adjustedCode = await adjustCode(openai, instruction, code);
-	status.dispose();
 
 	if (!adjustedCode) {
 		vscode.window.showErrorMessage("An error occurred. Please try again.");
@@ -80,9 +78,7 @@ const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { v
 	let textToCursor = doc.getText(new vscode.Range(new vscode.Position(0, 0), pos));
 	let textAfterCursor = doc.getText(new vscode.Range(pos, new vscode.Position(doc.lineCount + 1, 0)));
 
-	const status = vscode.window.setStatusBarMessage("Thinking...");
 	const code = await createCode(openai, instruction, textToCursor, textAfterCursor);
-	status.dispose();
 
 	if (!code) {
 		vscode.window.showErrorMessage("An error occurred. Please try again.");

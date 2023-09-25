@@ -31,45 +31,55 @@ export const adjustCode = async (openai: OpenAI, instruction: string, code: stri
   const language = vscode.window.activeTextEditor?.document.languageId;
 	console.debug('Detected language (adjustCode):', language);
 
-	const completion = await openai.chat.completions.create({
-		messages: [
-			{
-				role: "system",
-				content: `You are a coding assistent for the ${language} programming language. The user prompt will be an instruction and a snippet of code to adjust. The output will be the adjusted code with no introduction or prefix.`
-			},
-			{
-				role: "user",
-				content: `Instruction: ${instruction}\nCode:\n${code}`
-			}
-		],
-		model: "gpt-4",
-	});
+	return vscode.window.withProgress({
+		location: vscode.ProgressLocation.Notification,
+		title: instruction
+	}, async () => {
+		const completion = await openai.chat.completions.create({
+			messages: [
+				{
+					role: "system",
+					content: `You are a coding assistent for the ${language} programming language. The user prompt will be an instruction and a snippet of code to adjust. The output will be the adjusted code with no introduction or prefix.`
+				},
+				{
+					role: "user",
+					content: `Instruction: ${instruction}\nCode:\n${code}`
+				}
+			],
+			model: "gpt-4",
+		});
 
-	const content = completion.choices[0]?.message.content;
-	return content;
+		const content = completion.choices[0]?.message.content;
+		return content;
+	});
 };
 
 export const createCode = async (openai: OpenAI, instruction: string, textBeforeCursor: string, textAfterCursor: string) => {
   const language = vscode.window.activeTextEditor?.document.languageId;
 	console.debug('Detected language (createCode):', language);
 
-	const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-		{
-			role: "system",
-			content: `You are a coding assistent for the ${language} programming language. The user prompt will the code before the cursor in <before> tags, the code after the cursor in <after> tags and a description of the new code to insert in <instruction> tags. The output will be code to insert between the before and after code which does what the user description says with no instroduction or explanation. `
-		},
-		{
-			role: "user",
-			content: `<instruction>${instruction}</instruction>\n<before>${textBeforeCursor}</before>\n<after>${textAfterCursor}</after>`
-		}
-	];
-	const completion = await openai.chat.completions.create({
-		messages: messages,
-		model: "gpt-4",
-	});
-
-	const content = completion.choices[0]?.message.content;
-	return content;
+	return vscode.window.withProgress({
+		location: vscode.ProgressLocation.Notification,
+		title: instruction
+	}, async () => {
+		const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+			{
+				role: "system",
+				content: `You are a coding assistent for the ${language} programming language. The user prompt will the code before the cursor in <before> tags, the code after the cursor in <after> tags and a description of the new code to insert in <instruction> tags. The output will be code to insert between the before and after code which does what the user description says with no instroduction or explanation. `
+			},
+			{
+				role: "user",
+				content: `<instruction>${instruction}</instruction>\n<before>${textBeforeCursor}</before>\n<after>${textAfterCursor}</after>`
+			}
+		];
+		const completion = await openai.chat.completions.create({
+			messages: messages,
+			model: "gpt-4",
+		});
+	
+		const content = completion.choices[0]?.message.content;
+		return content;
+	});	
 };
 
 export const captureAudio = async () => {
@@ -82,8 +92,7 @@ export const captureAudio = async () => {
     if ((error as any).code === 'ENOENT') {
       const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', { modal: true }, 'Install SoX');
       if (result === 'Install SoX') {
-        // TODO: Links to other than just Mac
-        vscode.env.openExternal(vscode.Uri.parse('https://formulae.brew.sh/formula/sox'));
+        vscode.env.openExternal(vscode.Uri.parse('https://github.com/jpallen/biggles#sox'));
       }
       return;
     } else {
