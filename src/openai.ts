@@ -77,7 +77,7 @@ export const captureAudio = async () => {
 
   let stream: Readable;
   try {
-    stream = await rec.start({ recordProgram: 'sox' });
+    stream = await rec.start();
   } catch (error) {
     if ((error as any).code === 'ENOENT') {
       const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', { modal: true }, 'Install SoX');

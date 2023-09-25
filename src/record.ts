@@ -40,79 +40,36 @@ export function start(userOptions: Partial<RecordOptions> = {}): Promise<Readabl
     thresholdEnd: null,
     silence: '1.0',
     verbose: false,
-    recordProgram: 'sox',
     audioType: null,
     device: null
   };
 
   const options:RecordOptions = Object.assign(defaults, userOptions);
 
-  // Capture audio stream
-  let cmd: string, cmdArgs: string[], cmdOptions: any, audioType: string;
-  switch (options.recordProgram) {
-    // On some Windows machines, sox is installed using the "sox" binary
-    // instead of "rec"
-    case 'sox':
-      cmd = "sox";
-      audioType = "wav";
-      if (options.audioType) {audioType = options.audioType;};
-      cmdArgs = [
-        '-q',                                   // show no progress
-        '-t', 'waveaudio',
-        '-d',
-        '-r', options.sampleRate.toString(),    // sample rate
-        '-c', '1',                              // channels
-        '-e', 'signed-integer',                 // sample encoding
-        '-b', '16',                             // precision (bits)
-        '-t', audioType,  // audio type
-        '-',
-        'silence', '1', '0.1', (options.thresholdStart || options.threshold + '%').toString(),
-        '1', options.silence, (options.thresholdEnd || options.threshold + '%').toString()
-      ];
-      break;
-    case 'rec':
-    default:
-      cmd = "rec";
-      audioType = "wav";
-      if (options.audioType) {audioType = options.audioType;};
-      cmdArgs = [
-        '-q',                     // show no progress
-        '-r', options.sampleRate.toString(), // sample rate
-        '-c', options.channels.toString(),   // channels
-        '-e', 'signed-integer',   // sample encoding
-        '-b', '16',               // precision (bits)
-        '-t', audioType,              // audio type
-        '-',                      // pipe
-            // end on silence
-        'silence', '1', '0.1', (options.thresholdStart || options.threshold + '%').toString(),
-        '1', options.silence, (options.thresholdEnd || options.threshold + '%').toString()
-      ];
-      break;
-    // On some systems (RasPi), arecord is the prefered recording binary
-    case 'arecord':
-      cmd = 'arecord';
-      audioType = "wav";
-      if (options.audioType) {audioType = options.audioType;};
-      cmdArgs = [
-        '-q',                     // show no progress
-        '-r', options.sampleRate.toString(), // sample rate
-        '-c', options.channels.toString(),   // channels
-        '-t', audioType,              // audio type
-        '-f', 'S16_LE',           // Sample format
-        '-'                       // pipe
-      ];
-      if (options.device) {
-        cmdArgs.unshift('-D', options.device);
-      }
-      break;
-  }
+  const cmd = "sox";
+  let audioType = "wav";
+  if (options.audioType) {audioType = options.audioType;};
+  const cmdArgs = [
+    '-d',
+    '-t', audioType,          // audio type
+    '-q',                     // show no progress
+    '-r', options.sampleRate.toString(), // sample rate
+    '-c', options.channels.toString(),   // channels
+    '-e', 'signed-integer',   // sample encoding
+    '-b', '16',               // precision (bits)
+    '-',                      // pipe
+        // end on silence
+    'silence', '1', '0.1', (options.thresholdStart || options.threshold + '%').toString(),
+    '1', options.silence, (options.thresholdEnd || options.threshold + '%').toString()
+  ];
 
   // Spawn audio capture command
-  cmdOptions = { encoding: 'binary' };
+  const cmdOptions: Record<string, any> = { encoding: 'binary' };
   if (options.device) {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     cmdOptions.env = Object.assign({}, process.env, { AUDIODEV: options.device });
   }
+
   cp = spawn(cmd, cmdArgs, cmdOptions);
   const rec = cp.stdout!;
 
@@ -155,7 +112,6 @@ interface RecordOptions {
   thresholdEnd: number | null
   silence: string
   verbose: boolean
-  recordProgram: 'sox' | 'rec' | 'arecord'
   audioType: string | null
   device: string | null
 }
