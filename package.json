@@ -30,9 +30,14 @@
     ],
     "keybindings": [
       {
-          "command": "biggles.voice",
-          "key": "ctrl+m",
-          "mac": "cmd+m"
+        "command": "biggles.voice",
+        "key": "ctrl+m",
+        "mac": "cmd+m"
+      },
+      {
+        "command": "biggles.text",
+        "key": "ctrl+n",
+        "mac": "cmd+n"
       }
     ],
     "configuration": {
@@ -45,6 +50,18 @@
         "biggles.openAI.organizationId": {
           "type": "string",
           "description": "OpenAI Organization ID (optional)"
+        },
+        "biggles.system.os": {
+          "type": "string",
+          "default": "win",
+          "enum": [
+            "nix",
+            "win"
+          ],
+          "enumDescriptions": [
+            "Use Audio Recording Commandline for Sox on Linux OS",
+            "Use Audio Recording Commandline for Sox on Windows OS"
+          ]
         }
       }
     }
