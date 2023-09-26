@@ -36,8 +36,8 @@
       },
       {
         "command": "biggles.text",
-        "key": "ctrl+n",
-        "mac": "cmd+n"
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
       }
     ],
     "configuration": {
