@@ -66,18 +66,6 @@
             "Use GPT 3 Model",
             "Use GPT 3 Model with extended context"
           ]
-        },
-        "biggles.system.os": {
-          "type": "string",
-          "default": "nix",
-          "enum": [
-            "nix",
-            "win"
-          ],
-          "enumDescriptions": [
-            "Use Audio Recording Commandline for Sox on Linux OS",
-            "Use Audio Recording Commandline for Sox on Windows OS"
-          ]
         }
       }
     }

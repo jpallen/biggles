@@ -25,21 +25,11 @@
 
 import { spawn, ChildProcess } from 'child_process';
 import { Readable } from 'node:stream';
-import * as vscode from 'vscode';
 
 let cp: ChildProcess | null; // Recording process
 
-const getConfig = () => { 
-	const config = vscode.workspace.getConfiguration('biggles');
-	const os = config.get('system.os') as string | undefined;
-	console.debug('initialised', {os});
-  return {os};
-};
-
 export function start(userOptions: Partial<RecordOptions> = {}): Promise<Readable> {
   cp = null; // Empty out possibly dead recording process
-
-  const {os} = getConfig();
 
   const defaults: RecordOptions = {
     sampleRate: 16000,
@@ -62,7 +52,11 @@ export function start(userOptions: Partial<RecordOptions> = {}): Promise<Readabl
 
   var cmdArgs;
 
-  if (os === "win") {
+  console.log('Platform', process.platform)
+
+  // Windows seems to require sox to be called with a different order
+  // of flags.
+  if (process.platform.startsWith("win")) {
     cmdArgs = [
       '-q',                                   // show no progress
       '-t', 'waveaudio',
