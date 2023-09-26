@@ -96,14 +96,14 @@ const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { v
 	});
 };
 
-const getInstruction = async (voice: boolean, prompt: string, placeHolder: string) => {
+const getInstruction = async (voice: boolean, placeHolder: string, prompt: string) => {
 	let instruction: string | undefined;
 	if (voice) {
 		instruction = await captureAudio();
 	} else {
 		instruction = await vscode.window.showInputBox({
-			placeHolder: "Description of code to insert...",
-			prompt: "Describe the code you would like to insert",
+			placeHolder,
+			prompt,
 		});
 	}
 	console.debug(`Instruction: ${instruction}`);
