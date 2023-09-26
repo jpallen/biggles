@@ -69,7 +69,7 @@
         },
         "biggles.system.os": {
           "type": "string",
-          "default": "win",
+          "default": "nix",
           "enum": [
             "nix",
             "win"
