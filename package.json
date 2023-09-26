@@ -30,9 +30,14 @@
     ],
     "keybindings": [
       {
-          "command": "biggles.voice",
-          "key": "ctrl+m",
-          "mac": "cmd+m"
+        "command": "biggles.voice",
+        "key": "ctrl+m",
+        "mac": "cmd+m"
+      },
+      {
+        "command": "biggles.text",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
       }
     ],
     "configuration": {
@@ -45,6 +50,22 @@
         "biggles.openAI.organizationId": {
           "type": "string",
           "description": "OpenAI Organization ID (optional)"
+        },
+        "biggles.openAI.model": {
+          "type": "string",
+          "default": "gpt-4",
+          "enum": [
+            "gpt-4",
+            "gpt-4-32k",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k"
+          ],
+          "enumDescriptions": [
+            "Use GPT 4 Model",
+            "Use GPT 4 Model with extended context",
+            "Use GPT 3 Model",
+            "Use GPT 3 Model with extended context"
+          ]
         }
       }
     }
