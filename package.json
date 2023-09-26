@@ -66,6 +66,16 @@
             "Use GPT 3 Model",
             "Use GPT 3 Model with extended context"
           ]
+        },
+        "biggles.contextTokens.beforeSelection": {
+          "type": "number",
+          "default": 500,
+          "description": "Maximum number of tokens of context to send to OpenAI before the current selection"
+        },
+        "biggles.contextTokens.afterSelection": {
+          "type": "number",
+          "default": 200,
+          "description": "Maximum number of tokens of context to send to OpenAI after the current selection"
         }
       }
     }
@@ -93,6 +103,7 @@
   },
   "dependencies": {
     "form-data": "^4.0.0",
+    "gpt-3-encoder": "^1.1.4",
     "node-mic-record": "^0.0.1",
     "openai": "^4.9.0",
     "reequest": "^0.0.1-security"

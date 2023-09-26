@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import OpenAI from "openai";
 import { adjustCode, createCode, getOpenAIClient, captureAudio } from './openai';
+import { encode, decode } from 'gpt-3-encoder';
 
 export async function activate(context: vscode.ExtensionContext) {
   const text = vscode.commands.registerCommand('biggles.text', () => biggles({voice: false}));
@@ -77,6 +78,13 @@ const promptToInsertCode = async (openai: OpenAI, editor: vscode.TextEditor, { v
   let pos = editor.selection.active;
   let textToCursor = doc.getText(new vscode.Range(new vscode.Position(0, 0), pos));
   let textAfterCursor = doc.getText(new vscode.Range(pos, new vscode.Position(doc.lineCount + 1, 0)));
+  const beforeTokens = encode(textToCursor);
+  const afterTokens = encode(textAfterCursor);
+  const config = vscode.workspace.getConfiguration('biggles.contextTokens');
+  const maxTokensBeforeSelection = config.get('beforeSelection') || 500;
+  const maxTokensAfterSelection = config.get('afterSelection') || 200;
+  textToCursor = decode(beforeTokens.slice(-maxTokensBeforeSelection));
+  textAfterCursor = decode(afterTokens.slice(-maxTokensAfterSelection));
 
   const code = await createCode(openai, instruction, textToCursor, textAfterCursor);
 
