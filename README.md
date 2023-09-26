@@ -15,10 +15,6 @@ Biggles has two modes: **Insertion** and **Modification**. If you don't have any
 
 ## Installation
 
-### OpenAI
-
-Biggles uses the OpenAI Whisper and GPT4 APIs. You will need to provide your API key for Biggles to use.
-
 ### SoX
 
 Biggles uses the SoX library for recording audio. You will probably need to install this.
@@ -43,3 +39,10 @@ $ sudo apt-get install sox libsox-fmt-all
     - "Edit the system environment variables" -> "Environment Variables" -> "Path" -> Edit -> New -> Paste the path
 - Restart VSCode
 
+## Configuration
+
+Biggles uses the OpenAI Whisper and GPT4 API by default. You will need to provide your API key for Biggles to use in via the `biggles.openAI.apiKey` setting.
+
+You can choose the version of GPT to use via the `biggles.openAI.model` setting.
+
+You can optionall set you our OpenAI organization id via `biggles.openAI.organizationId` setting.
