@@ -40,5 +40,9 @@ $ sudo apt-get install sox libsox-fmt-all
 - Restart VSCode
 
 ## Configuration
-- Add your OpenAI API key to the configuration/settings in biggles.openai.apikey and your OpenAI organiztion id to biggles.openai.organiztionid.
-- Set the system os to "win" (biggles.system.os) if you are using windows.
+
+Biggles uses the OpenAI Whisper and GPT4 API by default. You will need to provide your API key for Biggles to use in via the `biggles.openAI.apiKey` setting.
+
+You can choose the version of GPT to use via the `biggles.openAI.model` setting.
+
+You can optionall set you our OpenAI organization id via `biggles.openAI.organizationId` setting.
