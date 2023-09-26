@@ -7,7 +7,7 @@ import * as https from 'https';
 import { Readable } from 'node:stream';
 
 export const getOpenAIClient = async () => {
-  const {apiKey, organization} = getConfig();
+	const { apiKey, organization, model } = getConfig();
 	if (typeof apiKey !== 'string' || apiKey.length === 0) {
 		const result = await vscode.window.showErrorMessage('No OpenAI API key found. Please add one to your settings.', 'Open Settings');
 		if (result === 'Open Settings') {
@@ -19,16 +19,18 @@ export const getOpenAIClient = async () => {
 	return new OpenAI({ apiKey, organization });
 };
 
-const getConfig = () => { 
+const getConfig = () => {
 	const config = vscode.workspace.getConfiguration('biggles');
 	const apiKey = config.get('openAI.apiKey') as string | undefined;
 	const organization = config.get('openAI.organization') as string | undefined;
-	console.debug('initialised', {apiKey, organization});
-  return {apiKey, organization};
+	const model = config.get('openAI.model') as string | undefined;
+	console.debug('initialised', { apiKey, organization });
+	return { apiKey, organization, model };
 };
 
 export const adjustCode = async (openai: OpenAI, instruction: string, code: string) => {
-  const language = vscode.window.activeTextEditor?.document.languageId;
+	const { apiKey, organization, model } = getConfig();
+	const language = vscode.window.activeTextEditor?.document.languageId;
 	console.debug('Detected language (adjustCode):', language);
 
 	return vscode.window.withProgress({
@@ -46,7 +48,7 @@ export const adjustCode = async (openai: OpenAI, instruction: string, code: stri
 					content: `Instruction: ${instruction}\nCode:\n${code}`
 				}
 			],
-			model: "gpt-4",
+			model: model || "gpt-4",
 		});
 
 		const content = completion.choices[0]?.message.content;
@@ -55,7 +57,7 @@ export const adjustCode = async (openai: OpenAI, instruction: string, code: stri
 };
 
 export const createCode = async (openai: OpenAI, instruction: string, textBeforeCursor: string, textAfterCursor: string) => {
-  const language = vscode.window.activeTextEditor?.document.languageId;
+	const language = vscode.window.activeTextEditor?.document.languageId;
 	console.debug('Detected language (createCode):', language);
 
 	return vscode.window.withProgress({
@@ -76,34 +78,34 @@ export const createCode = async (openai: OpenAI, instruction: string, textBefore
 			messages: messages,
 			model: "gpt-4",
 		});
-	
+
 		const content = completion.choices[0]?.message.content;
 		return content;
-	});	
+	});
 };
 
 export const captureAudio = async () => {
-  const {apiKey, organization} = getConfig();
+	const { apiKey, organization } = getConfig();
 
-  let stream: Readable;
-  try {
-    stream = await rec.start();
-  } catch (error) {
-    if ((error as any).code === 'ENOENT') {
-      const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', { modal: true }, 'Install SoX');
-      if (result === 'Install SoX') {
-        vscode.env.openExternal(vscode.Uri.parse('https://github.com/jpallen/biggles#sox'));
-      }
-      return;
-    } else {
-      throw error;
-    }
-  }
+	let stream: Readable;
+	try {
+		stream = await rec.start();
+	} catch (error) {
+		if ((error as any).code === 'ENOENT') {
+			const result = await vscode.window.showErrorMessage('Failed to start recording: SoX not found', { modal: true }, 'Install SoX');
+			if (result === 'Install SoX') {
+				vscode.env.openExternal(vscode.Uri.parse('https://github.com/jpallen/biggles#sox'));
+			}
+			return;
+		} else {
+			throw error;
+		}
+	}
 
-  const formData = new FormData();
-  formData.append('model', 'whisper-1');
-  const boundary = formData.getBoundary();
-  formData.append('file', stream, { contentType: 'audio/wav', filename: 'audio.wav' });
+	const formData = new FormData();
+	formData.append('model', 'whisper-1');
+	const boundary = formData.getBoundary();
+	formData.append('file', stream, { contentType: 'audio/wav', filename: 'audio.wav' });
 
 	const headers: Record<string, string> = {
 		'Authorization': `Bearer ${apiKey}`,
@@ -114,12 +116,12 @@ export const captureAudio = async () => {
 		headers['OpenAI-Organization'] = organization;
 	}
 
-  const options = {
-    hostname: 'api.openai.com',
-    path: '/v1/audio/transcriptions',
-    method: 'POST',
-    headers
-  };
+	const options = {
+		hostname: 'api.openai.com',
+		path: '/v1/audio/transcriptions',
+		method: 'POST',
+		headers
+	};
 
 	// TODO: Handle OpenAI error and cancel recording
 	return new Promise<string>((resolveRequest, reject) => {
@@ -138,11 +140,11 @@ export const captureAudio = async () => {
 			return new Promise<void>(resolveProgress => {
 				const req = https.request(options, (res) => {
 					let body = '';
-			
+
 					res.on('data', (chunk) => {
 						body += chunk;
 					});
-			
+
 					res.on('end', () => {
 						resolveProgress();
 						if (cancelled) {
@@ -159,12 +161,12 @@ export const captureAudio = async () => {
 							reject(error);
 						}
 					});
-			
+
 					res.on('error', reject);
 				});
-		
+
 				formData.pipe(req);
-			
+
 				req.on('error', reject);
 			});
 		});

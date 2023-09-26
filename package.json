@@ -51,6 +51,22 @@
           "type": "string",
           "description": "OpenAI Organization ID (optional)"
         },
+        "biggles.openAI.model": {
+          "type": "string",
+          "default": "gpt-4",
+          "enum": [
+            "gpt-4",
+            "gpt-4-32k",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k"
+          ],
+          "enumDescriptions": [
+            "Use GPT 4 Model",
+            "Use GPT 4 Model with extended context",
+            "Use GPT 3 Model",
+            "Use GPT 3 Model with extended context"
+          ]
+        },
         "biggles.system.os": {
           "type": "string",
           "default": "win",
