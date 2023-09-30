@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/tailwindcss-cdn@3.3.4/tailwindcss.js"></script>
+  <title>Biggles</title>
+
+  <style>
+    p + p {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+    <nav class="flex items-center justify-end p-4 text-lg sticky top-0">
+        <div class="flex flex-direction-row items-center bg-white rounded-xl px-3 py-2">
+          <a href="https://github.com/jpallen/biggles" target="_blank" class="mr-6 flex items-center">
+              <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" style="width:32px;height:32px;border:none;" class="inline">
+              GitHub
+          </a>
+          <a href="https://marketplace.visualstudio.com/items?itemName=Biggles.biggles" class="bg-indigo-700 text-white font-bold py-2 px-6 rounded-md">Install</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-4 px-4 text-center" style="max-width: 750px">
+        <h1 class="text-6xl font-bold mb-4"><span class="text-indigo-700">Biggles</span>, the coding assistant you can talk to</h1>
+
+        <div class="my-12">
+            <a href="https://marketplace.visualstudio.com/items?itemName=Biggles.biggles" class="text-2xl bg-indigo-700 text-white font-bold py-3 px-9 mt-6 rounded-md">Install in VS Code</a>
+            <a href="https://www.youtube.com/watch?v=6NSplhZ0DlY" class="text-2xl font-bold py-3 px-9 mt-6 ml-6 text-slate-600">Watch demo video</a>
+          </div>
+
+        <video src="./demo.webm" alt="Biggles Product Demo" playsinline autoplay muted loop class="rounded-2xl mb-8">
+
+        </video>
+    
+    </div>
+    <div class="container mx-auto mt-12 px-4 mb-8" style="max-width: 750px">
+
+
+        <h2 class="text-2xl font-bold mb-2 mt-4">What can Biggles do?</h2>
+
+        <h3 class="text-xl font-bold mb-2 mt-4">Insert new code</h3>
+
+        <p>By default Biggles with insert new code at your current cursor position based on your instruction.</p>
+        
+        <h3 class="text-xl font-bold mb-2 mt-4">Modify existing code</h3>
+
+        <p>Or you can select some code and Biggles with modify the code based on your instruction.</p>
+        
+        <h3 class="text-xl font-bold mb-2 mt-4">Understand your voice</h3>
+
+        <p>Press <code>CMD+M</code>/<code>CTRL+M</code> and start talking. Biggles will understand your request and carry it out.</p>
+        
+        <h3 class="text-xl font-bold mb-2 mt-4">Take typed instructions</h3>
+
+        <p>If you prefer to type, then press <code>CMD+ALT+M</code>/<code>CTRL+ALT+M</code> to enter a text instruction for Biggles.</p>
+
+        <h2 class="text-2xl font-bold mb-2 mt-4">How Biggles works</h2>
+
+        <p>Biggles uses the OpenAI Whisper and ChatGPT APIs. You will need to provide your own OpenAI API key.</p>
+        
+        <p>Biggles sends some code before and after your cursor position to give ChatGPT some context.</p>
+
+        <h2 class="text-2xl font-bold mb-2 mt-4">Biggles' Limitations</h2>
+        
+        <p>Biggles has limited awareness of your code base, and only knows about the code close to the current cursor position. You can change the number of tokens of before and after context sent to ChatGPT in the settings.</p>
+        
+        <p>Biggles only has two modes: inserting new code if no code is selected, or modifying the selected block of code. It cannot perform more complex operations like moving code around (yet).</p>
+    </div>
+</body>
+</html>
